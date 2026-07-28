@@ -4,7 +4,7 @@ up:
 	docker compose up -d
 
 down:
-	docke compose down 
+	docker compose down 
 
 restart: down up 
 
