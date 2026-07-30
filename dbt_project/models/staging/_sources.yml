@@ -1,0 +1,43 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: orders
+        columns:
+          - name: order_id
+            tests:
+              - unique
+              - not_null
+      - name: order_items
+        columns:
+          - name: order_id
+            tests:
+              - not_null
+      - name: order_payments
+        columns:
+          - name: order_id
+            tests:
+              - not_null
+      - name: order_reviews
+      - name: customers
+        columns:
+          - name: customer_id
+            tests:
+              - unique
+              - not_null
+      - name: products
+        columns:
+          - name: product_id
+            tests:
+              - unique
+              - not_null
+      - name: sellers
+        columns:
+          - name: seller_id
+            tests:
+              - unique
+              - not_null
+      - name: geolocation
+      - name: category_translation
