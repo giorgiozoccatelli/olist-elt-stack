@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: int_order_items_summary
+    description: "One row per order, aggregating item count, total items price and total freight value from stg_order_items."
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+
+  - name: int_order_payments_summary
+    description: "One row per order, aggregating payment count and total payment value from stg_order_payments."
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+
+  - name: int_order_reviews_summary
+    description: "One row per order, aggregating review count and average review score from stg_order_reviews."
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
