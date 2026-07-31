@@ -1,0 +1,79 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: "Orders, a 1:1 staging model on top of raw.orders."
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_order_items
+    description: >
+      Line items for each order. An order can have multiple rows (multiple
+      items); the real unique key is the combination of order_id and
+      order_item_id.
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+
+  - name: stg_order_payments
+    description: >
+      Payments for each order. An order can have multiple rows (installment
+      payments or multiple payment methods).
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+
+  - name: stg_order_reviews
+    description: >
+      Order reviews. Note: 'review_id' alone is not unique in the source
+      dataset (Olist reuses the same review_id when the review text matches,
+      even across different orders) — the real unique key is the combination
+      of review_id and order_id.
+    columns:
+      - name: review_id
+        tests:
+          - not_null
+      - name: order_id
+        tests:
+          - not_null
+
+  - name: stg_customers
+    description: >
+      Customer records. Note: 'customer_id' is unique per order, not per
+      real-world person — 'customer_unique_id' is used to identify the same
+      customer across multiple orders.
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_products
+    description: "Product catalog."
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_sellers
+    description: "Seller records."
+    columns:
+      - name: seller_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_category_translation
+    description: "Translation of product categories from Portuguese to English."
+
+  - name: stg_geolocation
+    description: >
+      Geographic coordinates per zip code prefix. Not unique per prefix:
+      multiple rows exist with slightly different coordinates for the same
+      prefix.
