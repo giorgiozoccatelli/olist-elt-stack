@@ -42,9 +42,33 @@ models:
         tests:
           - unique
           - not_null
-      - name: customer_id
+      - name: customer_unique_id
         tests:
           - not_null
           - relationships:
-              to: ref('stg_customers')
-              field: customer_id
+              to: ref('dim_customers')
+              field: customer_unique_id
+
+  - name: fct_order_items
+    description: >
+      One row per order item, keeping product_id, seller_id and
+      customer_unique_id so this fact can be joined to all three dimensions.
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_products')
+              field: product_id
+      - name: seller_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_sellers')
+              field: seller_id
+      - name: customer_unique_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_unique_id

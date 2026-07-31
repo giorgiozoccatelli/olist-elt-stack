@@ -4,6 +4,12 @@ with orders as (
 
 ),
 
+customers as (
+
+    select * from {{ ref('stg_customers') }}
+
+),
+
 items_summary as (
 
     select * from {{ ref('int_order_items_summary') }}
@@ -27,6 +33,7 @@ final as (
     select
         orders.order_id,
         orders.customer_id,
+        customers.customer_unique_id,
         orders.order_status,
         orders.order_purchased_at,
         orders.order_approved_at,
@@ -47,6 +54,7 @@ final as (
             as delivery_days
 
     from orders
+    left join customers on orders.customer_id = customers.customer_id
     left join items_summary on orders.order_id = items_summary.order_id
     left join payments_summary on orders.order_id = payments_summary.order_id
     left join reviews_summary on orders.order_id = reviews_summary.order_id
