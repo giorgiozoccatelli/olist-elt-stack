@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      One row per real-world customer (deduplicated on customer_unique_id).
+      A single customer can place multiple orders, each with a different
+      customer_id in the source data.
+    columns:
+      - name: customer_unique_id
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_products
+    description: >
+      One row per product, enriched with the English category name via a
+      left join to stg_category_translation. Some categories (e.g. pc_gamer)
+      have no English translation in the source data and are left null.
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_sellers
+    description: "One row per seller."
+    columns:
+      - name: seller_id
+        tests:
+          - unique
+          - not_null
+
+  - name: fct_orders
+    description: >
+      One row per order, combining order status/dates from stg_orders with
+      aggregated items, payments and review metrics from the intermediate
+      models. delivery_days and review fields are null when an order has
+      not yet been delivered or reviewed.
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
