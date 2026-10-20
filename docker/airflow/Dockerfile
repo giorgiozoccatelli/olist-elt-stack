@@ -6,6 +6,5 @@ RUN python -m venv /home/airflow/dbt_venv \
     && /home/airflow/dbt_venv/bin/pip install --no-cache-dir "dbt-core<2" "dbt-postgres<2"
 
 # Airflow-side libraries. The constraints file pins versions known to work with Airflow 2.11.2.
-COPY requirements-airflow.txt /tmp/requirements-airflow.txt
-RUN pip install --no-cache-dir -r /tmp/requirements-airflow.txt \
+RUN pip install --no-cache-dir astronomer-cosmos==1.15.1 boto3 pandas psycopg2-binary python-dotenv \
     --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.11.2/constraints-3.12.txt"
