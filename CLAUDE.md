@@ -47,10 +47,13 @@ Altri due progetti (streaming, RAG) sono separati: non trattarli qui.
 - load_to_postgres.py è idempotente (TRUNCATE + append): `replace` falliva perché le view dbt dipendono da raw.*.
 - requirements.txt ridotto alle sole dipendenze dirette (era un freeze di 1400+ righe). Il `dbt` in ~/.local/bin è Fusion 2.x: usare sempre quello del venv.
 
-## PROSSIMO PASSO: Fase 3 — Airflow + Cosmos
-Piano concordato (spiegare prima il concetto, poi scrivere a blocchi):
-1. Estendere docker-compose.yml (non riscriverlo): Postgres separato per metadati Airflow, webserver, scheduler, airflow-init. Immagine Airflow custom con astronomer-cosmos, dbt-core<2, dbt-postgres<2 e le librerie degli script (boto3, pandas, sqlalchemy, psycopg2-binary, python-dotenv, kaggle).
-2. Punti critici da affrontare con calma: connessioni (Airflow Connections per Postgres e MinIO), host = nomi servizio Docker, profilo dbt utilizzabile dal container (quello in ~/.dbt non è visibile), montaggio di dags/, ingestion/, dbt_project/ e data/.
-3. Un DAG: TaskGroup ingestion (prepare -> upload -> load; valutare se il download Kaggle va nel DAG o resta una tantum) -> DbtTaskGroup Cosmos (un task per modello) -> dbt test come gate di qualità -> task di notifica (log).
-4. Aggiornare .env.example, README, Makefile.
-Poi: Fase 4 Streamlit, Fase 5 GitHub Actions (lint ruff/sqlfluff, pytest, dbt test), Fase 6 README con diagramma Mermaid e screenshot (dbt docs lineage, dashboard).
+## Fase 3 — Airflow + Cosmos (IN CORSO)
+Fatto (2026-10-20):
+- Immagine custom `docker/airflow/` (Airflow 2.11.2, Python 3.12, Cosmos 1.15.1; dbt in venv separato `/home/airflow/dbt_venv`, binario `/home/airflow/dbt_venv/bin/dbt`). Pandas 2.1.4 / SQLAlchemy 1.4 nel container (constraints Airflow).
+- docker-compose: airflow-init, airflow-webserver (:8080, mem 1g, usa ~720MB: stretto), airflow-scheduler (mem 1.5g), LocalExecutor, parallelismo 2. Metadati nel DB `airflow` dello stesso Postgres (creato a mano sul volume esistente; anche in scripts/init-db.sql per setup nuovi).
+- Connessione `olist_postgres` via env AIRFLOW_CONN_OLIST_POSTGRES; credenziali admin in .env (AIRFLOW_ADMIN_*).
+- Volumi montati: dags/, ingestion/, dbt_project/, data/, logs/. Verificato: load_to_postgres.py gira nel container.
+Da fare:
+1. DAG in `dags/`: TaskGroup ingestion (prepare -> upload -> load, via BashOperator `python /opt/airflow/ingestion/...`; download Kaggle resta fuori) -> DbtTaskGroup Cosmos (ProfileConfig da conn `olist_postgres`, dbt_executable_path venv) -> dbt test come gate -> task di notifica (log).
+2. Makefile (target airflow), README, .env.example già aggiornato.
+Poi: Fase 4 Streamlit, Fase 5 GitHub Actions (lint ruff/sqlfluff, pytest, dbt test; attenzione a minio/minio:latest su runner senza cache), Fase 6 README con diagramma Mermaid e screenshot.
