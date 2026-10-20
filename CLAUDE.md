@@ -16,8 +16,8 @@ Altri due progetti (streaming, RAG) sono separati: non trattarli qui.
 - Fai commit a fine di ogni blocco compiuto, controllando prima `git status` (mai `.env` o `data/`).
 
 ## Ambiente
-- macOS (Apple Silicon), VSCode, Python 3.13, venv in `.venv` (attivare con `source .venv/bin/activate`).
-- Container: olist_postgres, olist_minio, olist_minio_init. Rete: olist-elt-stack_default.
+- macOS (Apple Silicon), VSCode, Python 3.12 (Homebrew), venv in `.venv` ricreato il 2026-10-20 (il 3.13 framework era sparito) (attivare con `source .venv/bin/activate`).
+- Container: olist_postgres, olist_minio (minio-init rimosso: il bucket lo crea ensure_bucket() in ingestion/config.py). Rete: olist-elt-stack_default.
 - Credenziali in `.env` (non versionato); `.env.example` versionato.
 - Comandi Makefile: make up / down / restart / logs / ps / clean / psql.
 - Kaggle: token nuovo formato in `~/.kaggle/access_token` (permessi 600). Il token mostrato in chat va considerato compromesso: da rigenerare.
@@ -43,7 +43,9 @@ Altri due progetti (streaming, RAG) sono separati: non trattarli qui.
 - Dentro Docker l'host di Postgres/MinIO è il nome servizio (`postgres`, `minio`), da fuori è `localhost`.
 - `make psql` usa `sh -c` con `$$POSTGRES_USER` perché le variabili esistono solo nel container.
 - Tenere requirements.txt aggiornato con `pip freeze > requirements.txt` solo dopo installazioni volute.
-- Rifinitura nota non fatta: engine SQLAlchemy creato due volte in load_to_postgres.py; get_minio_client duplicato in due script.
+- Config condivisa in `ingestion/config.py`: host default localhost; in Docker impostare MINIO_ENDPOINT, POSTGRES_HOST, POSTGRES_PORT (porte interne 9000/5432).
+- load_to_postgres.py è idempotente (TRUNCATE + append): `replace` falliva perché le view dbt dipendono da raw.*.
+- requirements.txt ridotto alle sole dipendenze dirette (era un freeze di 1400+ righe). Il `dbt` in ~/.local/bin è Fusion 2.x: usare sempre quello del venv.
 
 ## PROSSIMO PASSO: Fase 3 — Airflow + Cosmos
 Piano concordato (spiegare prima il concetto, poi scrivere a blocchi):
