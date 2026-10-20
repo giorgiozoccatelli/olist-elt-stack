@@ -48,4 +48,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker compose --env-file .env.example config -q
+      # .env is not versioned, so the compose file needs the example one to validate.
+      - run: cp .env.example .env
+      - run: docker compose config -q
