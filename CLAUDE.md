@@ -47,13 +47,14 @@ Altri due progetti (streaming, RAG) sono separati: non trattarli qui.
 - load_to_postgres.py è idempotente (TRUNCATE + append): `replace` falliva perché le view dbt dipendono da raw.*.
 - requirements.txt ridotto alle sole dipendenze dirette (era un freeze di 1400+ righe). Il `dbt` in ~/.local/bin è Fusion 2.x: usare sempre quello del venv.
 
-## Fase 3 — Airflow + Cosmos (IN CORSO)
-Fatto (2026-10-20):
-- Immagine custom `docker/airflow/` (Airflow 2.11.2, Python 3.12, Cosmos 1.15.1; dbt in venv separato `/home/airflow/dbt_venv`, binario `/home/airflow/dbt_venv/bin/dbt`). Pandas 2.1.4 / SQLAlchemy 1.4 nel container (constraints Airflow).
-- docker-compose: airflow-init, airflow-webserver (:8080, mem 1g, usa ~720MB: stretto), airflow-scheduler (mem 1.5g), LocalExecutor, parallelismo 2. Metadati nel DB `airflow` dello stesso Postgres (creato a mano sul volume esistente; anche in scripts/init-db.sql per setup nuovi).
-- Connessione `olist_postgres` via env AIRFLOW_CONN_OLIST_POSTGRES; credenziali admin in .env (AIRFLOW_ADMIN_*).
-- Volumi montati: dags/, ingestion/, dbt_project/, data/, logs/. Verificato: load_to_postgres.py gira nel container.
-Da fare:
-1. DAG in `dags/`: TaskGroup ingestion (prepare -> upload -> load, via BashOperator `python /opt/airflow/ingestion/...`; download Kaggle resta fuori) -> DbtTaskGroup Cosmos (ProfileConfig da conn `olist_postgres`, dbt_executable_path venv) -> dbt test come gate -> task di notifica (log).
-2. Makefile (target airflow), README, .env.example già aggiornato.
-Poi: Fase 4 Streamlit, Fase 5 GitHub Actions (lint ruff/sqlfluff, pytest, dbt test; attenzione a minio/minio:latest su runner senza cache), Fase 6 README con diagramma Mermaid e screenshot.
+## Fase 3 — Airflow + Cosmos COMPLETATA e verificata (2026-10-20)
+- Immagine custom `docker/airflow/` (Airflow 2.11.2, Python 3.12, Cosmos 1.15.1; dbt in venv separato `/home/airflow/dbt_venv`). Pandas 2.1.4 / SQLAlchemy 1.4 nel container (constraints Airflow).
+- docker-compose: airflow-init, airflow-webserver (:8080), airflow-scheduler, LocalExecutor, parallelismo 2. Metadati nel DB `airflow` dello stesso Postgres (creato a mano sul volume esistente; anche in scripts/init-db.sql per setup nuovi). Credenziali admin in .env (AIRFLOW_ADMIN_*).
+- Connessione `olist_postgres` via env AIRFLOW_CONN_OLIST_POSTGRES; Cosmos genera il profilo dbt da questa (nome profilo `dbt_project`, schema analytics).
+- DAG `dags/olist_pipeline.py` (@daily, catchup off): TaskGroup ingestion (prepare -> upload -> load, BashOperator) -> DbtTaskGroup Cosmos (un task per modello, test dbt dopo ogni modello = gate qualità) -> notify (echo). Download Kaggle resta fuori dal DAG.
+- Run completo con `airflow dags test olist_pipeline`: 36 task, ~106s, success. RAM picco misurata: scheduler ~590MB, webserver ~570MB (Docker a 4GB basta).
+- Trappola: Cosmos con emit_datasets=True fallisce su Airflow 2.11 (`DatasetModel.aliases` flush error) -> `RenderConfig(emit_datasets=False)`.
+- Rimossi file superflui: dbt_project/README.md e .gitkeep delle cartelle dbt vuote.
+
+## PROSSIMO PASSO: Fase 4 — Streamlit
+Dashboard semplice sui marts (analytics_marts) in `streamlit_app/`, container nel compose. Poi Fase 5 GitHub Actions (lint ruff/sqlfluff, pytest, dbt parse; attenzione a minio/minio:latest su runner senza cache), Fase 6 README con diagramma Mermaid e screenshot (dbt docs lineage, dashboard).
