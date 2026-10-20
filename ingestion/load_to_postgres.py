@@ -1,7 +1,8 @@
 import io
+
 import pandas as pd
-from sqlalchemy import inspect, text
 from config import MINIO_BUCKET, get_engine, get_minio_client
+from sqlalchemy import inspect, text
 
 TRANSACTIONAL_TABLES = ["orders", "order_items", "order_payments", "order_reviews"]
 MASTER_TABLES = ["customers", "products", "sellers", "geolocation", "category_translation"]

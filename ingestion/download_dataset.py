@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from kaggle.api.kaggle_api_extended import KaggleApi
 
 DATASET_REF = "olistbr/brazilian-ecommerce"

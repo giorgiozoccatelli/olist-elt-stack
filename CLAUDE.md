@@ -61,5 +61,10 @@ Altri due progetti (streaming, RAG) sono separati: non trattarli qui.
 - Servizio `streamlit` nel compose (porta 127.0.0.1:8501, mem 512m, ~70MB usati). Verificato con streamlit AppTest: nessuna eccezione, 2190 ordini.
 - Pulizia fatta: requirements-airflow.txt inline nel Dockerfile, .gitignore ridotto, rimossi immagine olist-airflow:test, hello-world.
 
-## PROSSIMO PASSO: Fase 5 — GitHub Actions
-Solo lint (ruff, sqlfluff), pytest minimo, `dbt parse`; non far girare la pipeline intera. Poi Fase 6: README con diagramma Mermaid e screenshot (dbt docs lineage, dashboard).
+## Fase 5 — GitHub Actions COMPLETATA in locale (2026-10-20)
+- `.github/workflows/ci.yml`: 3 job indipendenti: ruff (ingestion, dags, streamlit_app), `dbt parse` con profilo fittizio (nessun DB), `docker compose config` con .env.example. Scelti volutamente senza sqlfluff (richiede DB/dbt templater) e senza pytest (nessuna logica isolabile).
+- Provati in locale uno per uno (ruff pulito dopo --fix sugli import, dbt parse exit 0, compose ok). Il workflow in sé NON è ancora girato su GitHub: verificare dopo il primo push.
+- Trappola VSCode: l'estensione dbt usa Fusion e segna in rosso dbt_project.yml ("postgres adapter not yet supported"). Non è un errore del file: disabilitare l'estensione dbt per questo workspace.
+
+## PROSSIMO PASSO: Fase 6 — README
+README.md con diagramma Mermaid dell'architettura, istruzioni (.env, make up, DAG), screenshot (dbt docs lineage, dashboard Streamlit, grafo DAG Airflow). Prima: push su GitHub e verifica CI verde.
