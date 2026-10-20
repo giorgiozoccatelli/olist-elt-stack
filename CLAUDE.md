@@ -66,5 +66,6 @@ Altri due progetti (streaming, RAG) sono separati: non trattarli qui.
 - Provati in locale uno per uno (ruff pulito dopo --fix sugli import, dbt parse exit 0, compose ok). Il workflow in sé NON è ancora girato su GitHub: verificare dopo il primo push.
 - Trappola VSCode: l'estensione dbt usa Fusion e segna in rosso dbt_project.yml ("postgres adapter not yet supported"). Non è un errore del file: disabilitare l'estensione dbt per questo workspace.
 
-## PROSSIMO PASSO: Fase 6 — README
-README.md con diagramma Mermaid dell'architettura, istruzioni (.env, make up, DAG), screenshot (dbt docs lineage, dashboard Streamlit, grafo DAG Airflow). Prima: push su GitHub e verifica CI verde.
+## Fase 5 — CI verde su GitHub (commit c1a94f0): ruff, dbt parse, compose config (il job compose richiede `cp .env.example .env`).
+
+## Fase 6 — README scritto (inglese). Mancano gli screenshot in docs/images/: dag-graph.png (Airflow, vista Graph), dbt-lineage.png (dbt docs), dashboard.png (Streamlit :8501). Dopo: commit e push, progetto concluso.
