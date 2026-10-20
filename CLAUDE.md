@@ -56,5 +56,10 @@ Altri due progetti (streaming, RAG) sono separati: non trattarli qui.
 - Trappola: Cosmos con emit_datasets=True fallisce su Airflow 2.11 (`DatasetModel.aliases` flush error) -> `RenderConfig(emit_datasets=False)`.
 - Rimossi file superflui: dbt_project/README.md e .gitkeep delle cartelle dbt vuote.
 
-## PROSSIMO PASSO: Fase 4 — Streamlit
-Dashboard semplice sui marts (analytics_marts) in `streamlit_app/`, container nel compose. Poi Fase 5 GitHub Actions (lint ruff/sqlfluff, pytest, dbt parse; attenzione a minio/minio:latest su runner senza cache), Fase 6 README con diagramma Mermaid e screenshot (dbt docs lineage, dashboard).
+## Fase 4 — Streamlit COMPLETATA e verificata (2026-10-20)
+- `streamlit_app/` (Dockerfile + app.py, una pagina): KPI (ordini, ricavi, review media, giorni di consegna), ricavi giornalieri, ordini per stato, top 10 categorie, % consegne in ritardo. Legge `analytics_marts` via SQLAlchemy.
+- Servizio `streamlit` nel compose (porta 127.0.0.1:8501, mem 512m, ~70MB usati). Verificato con streamlit AppTest: nessuna eccezione, 2190 ordini.
+- Pulizia fatta: requirements-airflow.txt inline nel Dockerfile, .gitignore ridotto, rimossi immagine olist-airflow:test, hello-world.
+
+## PROSSIMO PASSO: Fase 5 — GitHub Actions
+Solo lint (ruff, sqlfluff), pytest minimo, `dbt parse`; non far girare la pipeline intera. Poi Fase 6: README con diagramma Mermaid e screenshot (dbt docs lineage, dashboard).

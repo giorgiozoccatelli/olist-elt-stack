@@ -98,6 +98,23 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
+  streamlit:
+    build: ./streamlit_app
+    container_name: olist_streamlit
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+    ports:
+      - "127.0.0.1:8501:8501"
+    volumes:
+      - ./streamlit_app:/app
+    mem_limit: 512m
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   postgres_data:
   minio_data:
